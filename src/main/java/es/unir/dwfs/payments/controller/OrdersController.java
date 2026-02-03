@@ -21,15 +21,17 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Orders Controller", description = "API para gestión de pedidos de libros")
+@Tag(name = "Orders Controller", description = "API REST para gestión de pedidos de libros. Incluye validación de existencia y visibilidad de libros con manejo robusto de errores")
 public class OrdersController {
 
     private final OrdersService service;
 
     @PostMapping("/orders")
-    @Operation(summary = "Crear pedido", description = "Crea un nuevo pedido validando que los libros existan y estén visibles", responses = {
-            @ApiResponse(responseCode = "200", description = "Pedido creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Error de validación (libro no existe o no está visible)")
+    @Operation(summary = "Crear pedido", description = "Crea un nuevo pedido validando que todos los libros existan en el catálogo y estén visibles para la venta. Captura el precio actual de cada libro en el momento del pedido", responses = {
+            @ApiResponse(responseCode = "200", description = "OK - Pedido creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Bad Request - Error de validación (libro no existe, libro no está visible, o datos inválidos)"),
+            @ApiResponse(responseCode = "409", description = "Conflict - Violación de restricción de integridad de datos"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error - Error inesperado del servidor")
     })
     public ResponseEntity<Order> createOrder(@RequestBody @Valid OrderRequest request) {
 
@@ -41,8 +43,9 @@ public class OrdersController {
     }
 
     @GetMapping("/orders")
-    @Operation(summary = "Listar pedidos", description = "Obtiene todos los pedidos registrados", responses = {
-            @ApiResponse(responseCode = "200", description = "Lista de pedidos")
+    @Operation(summary = "Listar pedidos", description = "Obtiene todos los pedidos registrados en el sistema", responses = {
+            @ApiResponse(responseCode = "200", description = "OK - Lista de pedidos devuelta exitosamente"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error - Error inesperado del servidor")
     })
     public ResponseEntity<List<Order>> getOrders() {
 
@@ -55,9 +58,10 @@ public class OrdersController {
     }
 
     @GetMapping("/orders/{id}")
-    @Operation(summary = "Obtener pedido por ID", description = "Obtiene un pedido específico por su identificador", responses = {
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
-            @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
+    @Operation(summary = "Obtener pedido por ID", description = "Obtiene un pedido específico del sistema mediante su identificador único", responses = {
+            @ApiResponse(responseCode = "200", description = "OK - Pedido encontrado y devuelto exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Not Found - No existe un pedido con el ID especificado"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error - Error inesperado del servidor")
     })
     public ResponseEntity<Order> getOrder(@PathVariable String id) {
 

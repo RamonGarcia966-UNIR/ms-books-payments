@@ -17,7 +17,9 @@ spring:
     name: ms-books-payments
   web:
     error:
-      include-stacktrace: on_param  # En producción usar 'never' por seguridad
+      include-stacktrace: never
+      include-message: always
+      include-binding-errors: always
   datasource:
     url: jdbc:h2:mem:payments
   jpa:
