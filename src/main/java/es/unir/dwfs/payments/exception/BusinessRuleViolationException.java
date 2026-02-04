@@ -11,6 +11,7 @@ import java.util.List;
  */
 @Getter
 public class BusinessRuleViolationException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
     private final List<ErrorResponse.ErrorDetail> errors;
 

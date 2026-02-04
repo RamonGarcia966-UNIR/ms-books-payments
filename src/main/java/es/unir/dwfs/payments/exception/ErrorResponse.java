@@ -16,7 +16,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse {
+public class ErrorResponse implements java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Fecha y hora del error
@@ -56,7 +57,9 @@ public class ErrorResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class ErrorDetail {
+    public static class ErrorDetail implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
+
         /**
          * Campo que falló la validación
          */
