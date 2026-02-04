@@ -1,5 +1,6 @@
 package es.unir.dwfs.payments.controller.model;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,10 +16,12 @@ import lombok.*;
 @ToString
 public class OrderItemRequest {
 
-    @NotNull(message = "El ID del libro es obligatorio")
+    @NotNull(message = "ORDER_ITEM-001")
+    @Min(value = 1, message = "ORDER_ITEM-002")
     private Long bookId;
 
-    @NotNull(message = "La cantidad es obligatoria")
-    @Min(value = 1, message = "La cantidad debe ser al menos 1")
+    @NotNull(message = "ORDER_ITEM-010")
+    @Min(value = 1, message = "ORDER_ITEM-011")
+    @Max(value = 999, message = "ORDER_ITEM-012")
     private Integer quantity;
 }

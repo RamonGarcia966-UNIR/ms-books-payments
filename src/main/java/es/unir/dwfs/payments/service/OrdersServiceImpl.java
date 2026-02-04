@@ -9,9 +9,9 @@ import es.unir.dwfs.payments.facade.BooksCatalogueFacade;
 import es.unir.dwfs.payments.facade.model.Book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import es.unir.dwfs.payments.exception.BusinessRuleViolationException;
+import es.unir.dwfs.payments.exception.ConverterErrors;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     private final BooksCatalogueFacade booksCatalogueFacade;
     private final OrderJpaRepository repository;
+    private final ConverterErrors converterErrors;
 
     @Override
     public Order createOrder(OrderRequest request) {
@@ -43,17 +44,19 @@ public class OrdersServiceImpl implements OrdersService {
             // Validar que existe
             if (book == null) {
                 log.error("Book with ID {} not found", itemRequest.getBookId());
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "El libro con ID " + itemRequest.getBookId() + " no existe");
+                throw new BusinessRuleViolationException(
+                        "Libro no encontrado",
+                        "ORDER_BUSINESS-001",
+                        converterErrors.getMessage("ORDER_BUSINESS-001", itemRequest.getBookId()));
             }
 
             // Validar que es visible
             if (!book.getVisible()) {
                 log.error("Book '{}' is not visible", book.getTitle());
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "El libro '" + book.getTitle() + "' no está disponible para compra");
+                throw new BusinessRuleViolationException(
+                        "Libro no disponible",
+                        "ORDER_BUSINESS-002",
+                        converterErrors.getMessage("ORDER_BUSINESS-002", itemRequest.getBookId()));
             }
 
             // Crear OrderItem con precio capturado del catálogo
