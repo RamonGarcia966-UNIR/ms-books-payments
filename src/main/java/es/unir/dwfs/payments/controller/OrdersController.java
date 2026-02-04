@@ -2,16 +2,21 @@ package es.unir.dwfs.payments.controller;
 
 import es.unir.dwfs.payments.controller.model.OrderRequest;
 import es.unir.dwfs.payments.data.model.Order;
+import es.unir.dwfs.payments.exception.ConverterErrors;
+import es.unir.dwfs.payments.exception.ErrorResponse;
 import es.unir.dwfs.payments.service.OrdersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +30,7 @@ import java.util.List;
 public class OrdersController {
 
     private final OrdersService service;
+    private final ConverterErrors converterErrors;
 
     @PostMapping("/orders")
     @Operation(summary = "Crear pedido", description = "Crea un nuevo pedido validando que todos los libros existan en el catálogo y estén visibles para la venta", responses = {
@@ -105,13 +111,20 @@ public class OrdersController {
                     - **GENERIC-005**: Ha ocurrido un error inesperado. Por favor, contacte al administrador
                     """)
     })
-    public ResponseEntity<Order> getOrder(@PathVariable String id) {
+    public ResponseEntity<?> getOrder(@PathVariable String id, HttpServletRequest request) {
 
         Order order = service.getOrder(id);
         if (order != null) {
             return ResponseEntity.ok(order);
         } else {
-            return ResponseEntity.notFound().build();
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .timestamp(LocalDateTime.now())
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                    .message(converterErrors.getMessage("ORDER-404-001"))
+                    .path(request.getRequestURI())
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 }
