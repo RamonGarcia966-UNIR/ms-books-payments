@@ -51,7 +51,7 @@ public class OrdersServiceImpl implements OrdersService {
             }
 
             // Validar que es visible
-            if (!book.getVisible()) {
+            if (Boolean.FALSE.equals(book.getVisible())) {
                 log.error("Book '{}' is not visible", book.getTitle());
                 throw new BusinessRuleViolationException(
                         "Libro no disponible",
